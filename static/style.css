@@ -1,82 +1,67 @@
+/* General Page Styling */
 body {
     font-family: Arial, sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh; /* Full-screen height */
-    margin: 0;
-    background-color: #f0f2f5;
-}
-
-.viewer-title {
     text-align: center;
-    margin-bottom: 20px;
-    font-size: 2rem;
-    color: #333;
+    background-color: #121212;
+    color: white;
+    margin: 0;
+    padding: 0;
 }
 
-
-/* Upload Section */
-#upload-section {
-    background: #fff;
-    padding: 40px 60px;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+.container {
+    margin-top: 100px;
 }
 
-
-.upload-reqs {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-}
-
-form {
-    margin-bottom: 20px;
-}
-
-.text-box input {
-    width: 100%;
-    padding: 10px 15px;
-    border: 2px solid #ccc;
-    border-radius: 8px;
-    outline: none;
-    box-sizing: border-box;
-    margin-bottom: 15px;
-}
-
-.button button {
-    background-color: #1DB954; /* Spotify Green */
-    color: #fff;
-    border: none;
+.btn {
+    display: inline-block;
+    margin-top: 20px;
     padding: 10px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    width: 100%;
+    background-color: #1DB954;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
 }
 
-.button button:hover {
+.btn:hover {
     background-color: #18a34c;
 }
 
+/* Playlist Container */
+.playlist-container {
+    width: 60%;
+    margin: auto;
+    padding: 20px;
+}
 
-.track-list {
-    width: 100%;
-    max-width: 600px;
-    border: 1px solid #ddd;
+/* Individual Playlist Boxes */
+.playlist {
+    background-color: #282828;
+    padding: 15px;
+    margin-bottom: 10px;
     border-radius: 8px;
-    padding: 10px;
-    box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.1);
-    text-align: center;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s;
 }
 
-.track {
-    padding: 8px 0;
-    border-bottom: 1px solid #eee;
+.playlist:hover {
+    transform: scale(1.02);
 }
 
-.button {
+/* Playlist Links */
+.playlist a {
+    color: #1DB954;
+    text-decoration: none;
+    font-size: 1.2em;
+}
+
+.playlist a:hover {
+    text-decoration: underline;
+}
+
+/* Back Button */
+a {
+    display: block;
     margin-top: 20px;
+    color: #1DB954;
+    font-size: 1.1em;
 }

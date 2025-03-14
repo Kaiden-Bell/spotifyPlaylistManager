@@ -1,39 +1,16 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spotify Playlist Viewer</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1 class="viewer-title">Spotify Playlist Viewer</h1>
-
-
-    <section id="upload-section">
-        <div class="upload-reqs">
-            <form method="POST">
-                <div class="text-box">
-                    <input type="text" name="playlist_url" placeholder="Enter Spotify Playlist URL" required>
-                </div>
-                <div class="button">
-                    <button type="submit">Upload</button>
-                </div>
-            </form>
-        </div>
-    </section>
-
-    {% if tracks %}
-        <div class="track-list">
-            {% for track in tracks %}
-                <div class="track">
-                    <strong>{{ track.name }}</strong> - {{ track.artist }} ({{ track.album }})
-                </div>
-            {% endfor %}
-        </div>
-
-        <div class="button">
-            <button onclick="window.location.reload()">Upload Another Playlist</button>
-        </div>
-        
-    {% endif %}
+    <div class="container">
+        <h1>Welcome to the Spotify Playlist Viewer</h1>
+        <p>Login to see your playlists.</p>
+        <a href="/login" class="btn">Login with Spotify</a>
+    </div>
 </body>
 </html>

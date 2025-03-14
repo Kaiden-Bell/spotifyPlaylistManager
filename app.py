@@ -1,71 +1,108 @@
 import requests
-from flask import Flask, redirect, request, session, url_for
-from dotenv import load_dotenv
 import os
+from dotenv import load_dotenv
+from flask import Flask, render_template, session, redirect, url_for, request
 
-app = Flask(__name__)
-app.secret_key = "super_secret_key"  # Change this to something strong for security
+# Load environment variables
+load_dotenv()
 
-CLIENT_ID = os.getenv("SPOTIPY_CLIENT_ID")
-CLIENT_SECRET = os.getenv("SPOTIPY_CLIENT_SECRET")
-REDIRECT_URI = os.getenv("REDIRECT_URI")  # Must match your Spotify app's redirect URI
+app = Flask(__name__, static_folder="static")
+app.secret_key = os.getenv("SECRET_KEY", "super_secret_key")  # Secure this properly
+
+# Spotify API Credentials
+SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
+SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
+SPOTIFY_REDIRECT_URI = os.getenv("SPOTIFY_REDIRECT_URI")
 SPOTIFY_AUTH_URL = "https://accounts.spotify.com/authorize"
 SPOTIFY_TOKEN_URL = "https://accounts.spotify.com/api/token"
-
-# Scope defines what data you can access (playlist details in this case)
+SPOTIFY_API_BASE_URL = "https://api.spotify.com/v1"
 SCOPE = "playlist-read-private"
 
+# Home (Landing Page)
 @app.route('/')
 def home():
-    return '''
-    <h1>Spotify Playlist Viewer</h1>
-    <a href="/login">Login with Spotify</a>
-    '''
+    return render_template("index.html")
 
+# Login Route
 @app.route('/login')
 def login():
-    auth_url = f"{SPOTIFY_AUTH_URL}?client_id={CLIENT_ID}&response_type=code&redirect_uri={REDIRECT_URI}&scope={SCOPE}"
+    auth_url = f"{SPOTIFY_AUTH_URL}?client_id={SPOTIFY_CLIENT_ID}&response_type=code&redirect_uri={SPOTIFY_REDIRECT_URI}&scope={SCOPE}"
     return redirect(auth_url)
 
+# Spotify Callback (Handles Token Exchange)
 @app.route('/callback')
 def callback():
     code = request.args.get('code')
     if not code:
-        return "Error: No code provided."
+        return "Error: No authorization code received."
 
-    # Exchange code for an access token
+    # Exchange code for access token
     token_response = requests.post(SPOTIFY_TOKEN_URL, data={
         "grant_type": "authorization_code",
         "code": code,
-        "redirect_uri": REDIRECT_URI,
-        "client_id": CLIENT_ID,
-        "client_secret": CLIENT_SECRET,
+        "redirect_uri": SPOTIFY_REDIRECT_URI,
+        "client_id": SPOTIFY_CLIENT_ID,
+        "client_secret": SPOTIFY_CLIENT_SECRET,
     })
 
     token_info = token_response.json()
-    session['access_token'] = token_info['access_token']
-    
-    return redirect(url_for('playlist_viewer'))
+    session['access_token'] = token_info.get('access_token')
 
-@app.route('/playlist', methods=['POST'])
-def playlist_viewer():
-    playlist_url = request.form['playlist_url']
-    playlist_id = playlist_url.split('/')[-1].split('?')[0]  
+    return redirect(url_for('user_playlists'))  # Redirect to playlists page after login
+
+# Fetch User's Playlists
+@app.route('/playlists')
+def user_playlists():
     access_token = session.get('access_token')
     
     if not access_token:
         return redirect('/login')
 
     headers = {"Authorization": f"Bearer {access_token}"}
-    response = requests.get(f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks", headers=headers)
+    response = requests.get(f"{SPOTIFY_API_BASE_URL}/me/playlists", headers=headers)
     
     if response.status_code != 200:
-        return "Error fetching playlist."
+        return "Error fetching playlists"
 
-    data = response.json()
-    track_data = [{"name": t['track']['name'], "artist": t['track']['artists'][0]['name']} for t in data['items']]
+    playlists = response.json().get("items", [])
 
-    return f"<h3>Tracks in Playlist:</h3> {track_data}"
+    user_playlists = []
+    for playlist in playlists:
+        playlist_id = playlist["id"]
+        name = playlist["name"]
+        total_tracks = playlist["tracks"]["total"]
 
-if __name__ == '__main__':
-    app.run(debug=True)
+        # Fetch total duration of all songs
+        track_response = requests.get(f"{SPOTIFY_API_BASE_URL}/playlists/{playlist_id}/tracks", headers=headers)
+        track_data = track_response.json()
+
+        # Check if "items" key exists
+        if "items" not in track_data:
+            continue
+
+        total_duration = sum(
+            track["track"]["duration_ms"] for track in track_data["items"]
+            if track.get("track") and track["track"].get("duration_ms")  # Check if track exists
+        )
+
+        total_minutes = round(total_duration / (1000 * 60), 2)  # Convert to minutes
+
+        user_playlists.append({
+            "name": name,
+            "total_tracks": total_tracks,
+            "total_duration": total_minutes,
+            "spotify_url": playlist["external_urls"]["spotify"]
+        })
+
+    return render_template("playlists.html", playlists=user_playlists)
+
+
+# Logout Route (Clears session and redirects to home)
+@app.route('/logout')
+def logout():
+    session.pop('access_token', None)
+    return redirect(url_for('home'))
+
+# Run Flask App
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=5000)

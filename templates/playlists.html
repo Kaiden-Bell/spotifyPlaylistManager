@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Spotify Playlists</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Your Spotify Playlists</h1>
+    
+    <div class="playlist-container">
+        {% for playlist in playlists %}
+            <div class="playlist">
+                <h2><a href="{{ playlist.spotify_url }}" target="_blank">{{ playlist.name }}</a></h2>
+                <p>🎵 {{ playlist.total_tracks }} songs</p>
+                <p>⏳ Total Time: {{ playlist.total_duration }} minutes</p>
+            </div>
+        {% endfor %}
+    </div>
+    
+    <a href="/">Back to Home</a>
+</body>
+</html>
