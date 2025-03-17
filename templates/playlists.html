@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+
     <h1>Your Spotify Playlists</h1>
     
     <div class="playlist-container">
@@ -15,18 +16,26 @@
             <h2><a href="{{ playlist.spotify_url }}" target="_blank">{{ playlist.name }}</a></h2>
             <p>🎵 {{ playlist.total_tracks }} songs</p>
             <p>⏳ Total Time: {{ playlist.total_duration }} minutes</p>
+            <form action="{{ url_for('playlist_songs', playlist_id=playlist.spotify_url.split('/')[-1]) }}" method="GET">
+                <button type="submit">View Songs</button>
+            </form>
         </div>
         {% endfor %}
-    </div>
 
-    <div id="hidden-playlists" style="display: none;">
-        {% for playlist in all_playlists[3:] %}
-        <div class="playlist">
-            <h2><a href="{{ playlist.spotify_url }}" target="_blank">{{ playlist.name }}</a></h2>
-                <p>🎵 {{ playlist.total_tracks }} songs</p>
-                <p>⏳ Total Time: {{ playlist.total_duration }} minutes</p>
+        <div id="hidden-playlists" style="display: none;">
+            {% for playlist in all_playlists[3:] %}
+            <div class="playlist">
+                <h2><a href="{{ playlist.spotify_url }}" target="_blank">{{ playlist.name }}</a></h2>
+                    <p>🎵 {{ playlist.total_tracks }} songs</p>
+                    <p>⏳ Total Time: {{ playlist.total_duration }} minutes</p>
+                    <form action="{{ url_for('playlist_songs', playlist_id=playlist.spotify_url.split('/')[-1]) }}" method="GET">
+                        <button type="submit">View Songs</button>
+                    </form>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
+
+        <button id="toggle-playlists">Show More</button>
     </div>
     
     <a href="/" class="btn">Back Home</a>

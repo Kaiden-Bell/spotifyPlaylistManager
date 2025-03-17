@@ -97,7 +97,37 @@ def user_playlists():
             "spotify_url": playlist["external_urls"]["spotify"]
         })
 
-    return render_template("playlists.html", playlists=user_playlists[:3], all_playlist=user_playlists)
+    return render_template("playlists.html", playlists=user_playlists[:3], all_playlists=user_playlists)
+
+
+@app.route('/playlist/<playlist_id>')
+def playlist_songs(playlist_id):
+    access_token = session.get('access_token')
+
+    if not access_token:
+        return redirect('/login')
+
+    headers = {"Authorization": f"Bearer {access_token}"}
+    response = requests.get(f"{SPOTIFY_API_BASE_URL}/playlists/{playlist_id}/tracks?limit=100", headers=headers)
+
+    if response.status_code != 200:
+        return "Error fetching playlist songs"
+
+    song_data = response.json().get("items", [])
+    
+    songs = []
+    for item in song_data:
+        track = item.get("track")
+        if track:
+            songs.append({
+                "name": track.get("name"),
+                "artist": track["artists"][0]["name"],
+                "album": track.get("album", {}).get("name", "Unknown Album"),
+                "id": track.get("id"),
+                "uri": track.get("uri")
+            })
+
+    return render_template("songs.html", songs=songs)
 
 
 # Logout Route (Clears session and redirects to home)
