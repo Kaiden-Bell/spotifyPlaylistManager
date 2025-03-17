@@ -66,6 +66,9 @@ def user_playlists():
 
     playlists = response.json().get("items", [])
 
+    # Fetch all Playlist, and display them by last modified date
+    playlists = sorted(playlists, key=lambda x: x.get("snapshot_id", ""), reverse=True)
+
     user_playlists = []
     for playlist in playlists:
         playlist_id = playlist["id"]
@@ -94,7 +97,7 @@ def user_playlists():
             "spotify_url": playlist["external_urls"]["spotify"]
         })
 
-    return render_template("playlists.html", playlists=user_playlists)
+    return render_template("playlists.html", playlists=user_playlists[:3], all_playlist=user_playlists)
 
 
 # Logout Route (Clears session and redirects to home)

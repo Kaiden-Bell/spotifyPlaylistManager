@@ -11,14 +11,37 @@
     
     <div class="playlist-container">
         {% for playlist in playlists %}
-            <div class="playlist">
-                <h2><a href="{{ playlist.spotify_url }}" target="_blank">{{ playlist.name }}</a></h2>
+        <div class="playlist">
+            <h2><a href="{{ playlist.spotify_url }}" target="_blank">{{ playlist.name }}</a></h2>
+            <p>🎵 {{ playlist.total_tracks }} songs</p>
+            <p>⏳ Total Time: {{ playlist.total_duration }} minutes</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div id="hidden-playlists" style="display: none;">
+        {% for playlist in all_playlists[3:] %}
+        <div class="playlist">
+            <h2><a href="{{ playlist.spotify_url }}" target="_blank">{{ playlist.name }}</a></h2>
                 <p>🎵 {{ playlist.total_tracks }} songs</p>
                 <p>⏳ Total Time: {{ playlist.total_duration }} minutes</p>
-            </div>
+        </div>
         {% endfor %}
     </div>
     
-    <a href="/">Back to Home</a>
+    <a href="/" class="btn">Back Home</a>
+
+    <script>
+        document.getElementById("toggle-playlists").addEventListener("click", function() {
+            let hiddenPlaylists = document.getElementById("hidden-playlists");
+            if (hiddenPlaylists.style.display === "none") {
+                hiddenPlaylists.style.display = "block";
+                this.textContent = "Show Less";
+            } else {
+                hiddenPlaylists.style.display = "none";
+                this.textContent = "Show More";
+            }
+        });
+    </script>
 </body>
 </html>
